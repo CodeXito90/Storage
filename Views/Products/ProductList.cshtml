@@ -1,0 +1,124 @@
+﻿@model Storage.Models.ProductListViewModel
+@{
+    ViewData["Title"] = "Product List";
+}
+
+<!-- Kategori filter form -->
+<<div class="mb-4">
+    <form asp-controller="Products" asp-action="Filter" method="get" class="row g-3">
+        <div class="col-md-4">
+            <label for="searchTerm" class="form-label">Search Products</label>
+            <input type="text" id="searchTerm" name="searchTerm" class="form-control" placeholder="Enter product name" />
+        </div>
+        <div class="col-md-4">
+            <label for="category" class="form-label">Select Category</label>
+            <select id="category" name="category" class="form-select">
+                <option value="">All Categories</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <button type="button" class="btn btn-secondary ms-2" onclick="clearFilters()">Clear</button>
+        </div>
+    </form>
+</div>
+
+<h1>Product List</h1>
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+
+<div class="row">
+    @foreach (var item in Model.Products)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@item.Name</h5>
+                    <p class="card-text">Price: @item.Price.ToString("C")</p>
+                    <p class="card-text">Count: @item.Count</p>
+                    <p class="card-text">Inventory Value: @item.InventoryValue.ToString("C")</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#detailsModal"
+                                    data-product-id="@item.Id"
+                                    data-product-name="@item.Name"
+                                    data-product-price="@item.Price"
+                                    data-product-count="@item.Count"
+                                    data-product-value="@item.InventoryValue">
+                                Details
+                            </button>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Product Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Name</dt>
+                    <dd class="col-sm-8" id="modalName"></dd>
+
+                    <dt class="col-sm-4">Price</dt>
+                    <dd class="col-sm-8" id="modalPrice"></dd>
+
+                    <dt class="col-sm-4">Count</dt>
+                    <dd class="col-sm-8" id="modalCount"></dd>
+
+                    <dt class="col-sm-4">Inventory Value</dt>
+                    <dd class="col-sm-8" id="modalValue"></dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+
+        function clearFilters() {
+            document.getElementById('searchTerm').value = '';
+            document.getElementById('category').value = '';
+            // Optionally, submit the form to refresh the product list
+            document.forms[0].submit();
+        }
+
+        // Lyssna på modal-öppning och uppdatera innehållet
+            document.getElementById('detailsModal').addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+
+            // Hämta data från button attributes
+            const name = button.getAttribute('data-product-name');
+            const price = button.getAttribute('data-product-price');
+            const count = button.getAttribute('data-product-count');
+            const value = button.getAttribute('data-product-value');
+
+            // Uppdatera modal innehåll
+            document.getElementById('modalName').textContent = name;
+            document.getElementById('modalPrice').textContent = price;
+            document.getElementById('modalCount').textContent = count;
+            document.getElementById('modalValue').textContent = value;
+
+            // Uppdatera modal titel
+            document.getElementById('detailsModalLabel').textContent = `Details for ${name}`;
+        });
+    </script>
+}
